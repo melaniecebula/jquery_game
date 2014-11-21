@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Jquery is included here and available for use -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <!-- some basic styles for game setup -->
+    <style>
+      .viewport {
+        height: 500px;
+        width: 500px;
+        border: 1px solid black;
+        margin-bottom: 10px;
+        display: none;
+      }
+      .row {
+        display: table-row;
+      }
+      .game-space {
+        border: 1px dotted gray;
+        width: 50px;
+        height: 50px;
+        display: table-cell;
+      }
+      .ruby {
+        background-image: url(ruby.png);
+        background-repeat: no-repeat;
+        background-size: 40px 25px;
+        background-position: 4px 14px;
+      }
+      .python {
+      top: 0px;
+      left: 0px;
+      }
+
+
+    </style>
+  </head>
+  <body>
+    <button id="start_game">Start Game</button>
+    <div class="viewport"></div>
+    <div class="form">
+      <!-- File picker will only work with modern browsers! -->
+      <input type="file" />
+    </div>
+  </body>
+</html>
+
+<script>
+  $(document).ready(function () {
+  currI = 0
+  currJ = 0
+
+  rubyI = 0
+  rubyJ = 0
+
+  counterI = 0
+  counterJ = 0
+  //Render function is provided to draw the game board
+  var render = function() {
+    $('.viewport').css('display', 'table');
+    var html = "";
+    for(var i=0; i<10; i++) {
+      html += "<div class='row'>";
+      for(var j=0; j<10; j++) {
+        html += "<div class='game-space' id="+i+""+j+">";
+        if(i === 0 && j === 0) {
+          html += "<img src='python.png' id='python' height=45 width=45>";
+        }
+        html += "</div>";
+      }
+      html += "</div>";
+    }
+    $('.viewport').html(html);
+  }
+  $("#start_game").click(function () {
+    $("#start_game").attr("disabled", true);
+    render();
+    //TODO:  add ruby class to a random id 00 to 99
+    randomNumber = Math.floor(Math.random() * (99)) + 1 //returns num in range from 0 to 99
+    //if number is less than 10, prepend 0 to front of string version
+    //TODO:  handle case where randomNumber is the same as python's position
+    whichGrid = randomNumber.toString();
+    if (randomNumber.length == 1) {
+      randomNumber = "0" + randomNumber;
+      window.rubyJ = randomNumber;
+    } else {
+      window.rubyI = parseInt(randomNumber.toString().charAt(0));
+      window.rubyJ = parseInt(randomNumber.toString().charAt(1));
+    }
+
+    randomNumber = "#" + randomNumber;
+
+    var $ruby = $("<div class='ruby'></div>");
+    $ruby.attr("class", "ruby");
+    $(randomNumber).addClass("ruby");
+    })
+
+  //TODO:  moving the python:  left: 37, right: 39, 38: up, 40: down
+  //on keypress:  move python one in direction
+
+  var checkPosition = function(direction) {
+    console.log("CHECK");
+    console.log(window.rubyI, window.rubyJ);
+    if( window.rubyI == currI && window.rubyJ == currJ) {
+      alert(counterI + counterJ);
+    }
+    else { //want to move to Ruby away
+    //if moving to right and ruby is moving to the right --> move it to the right
+    //if moving to the lett and ruby is moving to the right --> don't move it
+      if (direction == "right" && window.rubyJ > currJ && window.rubyJ < 9) {
+          //move ruby if possible
+          $(".ruby").removeClass("ruby");
+          window.rubyJ += 1;
+          console.log(window.rubyJ);
+          goTo = "#" + window.rubyI.toString() + window.rubyJ.toString();
+          var $ruby = $("<div class='ruby'></div>");
+          $ruby.attr("class", "ruby");
+          $(goTo).addClass("ruby");
+
+      }
+      if (direction == "left" && window.rubyJ < currJ && window.rubyJ > 0) {
+          //move ruby if possible
+          $(".ruby").removeClass("ruby");
+          window.rubyJ -= 1;
+          goTo = "#" + window.rubyI.toString() + window.rubyJ.toString();
+          var $ruby = $("<div class='ruby'></div>");
+          $ruby.attr("class", "ruby");
+          $(goTo).addClass("ruby");
+      }
+      if (direction == "down" && window.rubyI > currI && window.rubyI < 9) {
+          //move ruby if possible
+          $(".ruby").removeClass("ruby");
+          window.rubyI += 1;
+          goTo = "#" + window.rubyI.toString() + window.rubyJ.toString();
+          var $ruby = $("<div class='ruby'></div>");
+          $ruby.attr("class", "ruby");
+          $(goTo).addClass("ruby");
+
+      }
+      if (direction == "up" && window.rubyI < currI && window.rubyI > 0) {
+          //move ruby if possible
+          $(".ruby").removeClass("ruby");
+          window.rubyI -= 1;
+          goTo = "#" + window.rubyI.toString() + window.rubyJ.toString();
+          var $ruby = $("<div class='ruby'></div>");
+          $ruby.attr("class", "ruby");
+          $(goTo).addClass("ruby");
+
+      }
+    }
+    
+  }
+
+  $(document).keydown(function(e) {
+    if(e.which == 37) {
+      //left
+      e.preventDefault();
+      currJ -= 1
+      if (currJ < 0) {
+        currJ = 0;
+      }
+      //console.log(currI, currJ);
+      $("#python").remove();
+      goTo = "#" + currI.toString() + currJ.toString();
+      $(goTo).prepend("<img src='python.png' id='python' height=45 width=45 prepended='yes'>")
+      window.counterJ += 1;
+      checkPosition("left")
+    }
+    else if (e.which == 39) {
+      //right
+      //remove old image tag
+      //add new image tag with new i, j
+      e.preventDefault();
+      currJ += 1
+      if (currJ > 9) { currJ = 9; }
+      //console.log(currI, currJ);
+      $("#python").remove();
+      goTo = "#" + currI.toString() + currJ.toString();
+      $(goTo).prepend("<img src='python.png' id='python' height=45 width=45 prepended='yes'>")
+      window.counterJ += 1;
+      checkPosition("right")
+    }
+    else if (e.which == 40) {
+      //down
+      e.preventDefault();
+      currI += 1
+      if (currI > 9) { currI = 9; }
+      //console.log(currI, currJ);
+      $("#python").remove();
+      goTo = "#" + currI.toString() + currJ.toString();
+      $(goTo).prepend("<img src='python.png' id='python' height=45 width=45 prepended='yes'>")
+      window.counterI += 1;
+      checkPosition("down")
+
+    }
+    else if (e.which == 38) {
+      //up
+      e.preventDefault();
+      currI -= 1
+      if (currI < 0) {
+        currI = 0;
+      }
+      //console.log(currI, currJ);
+      $("#python").remove();
+      goTo = "#" + currI.toString() + currJ.toString();
+      $(goTo).prepend("<img src='python.png' id='python' height=45 width=45 prepended='yes'>")
+      window.counterI += 1;
+      checkPosition("up")
+    }
+
+  });
+
+//Your code here. Good luck!
+})
+</script>
